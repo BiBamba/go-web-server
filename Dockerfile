@@ -5,7 +5,6 @@ COPY . ./
 
 
 RUN go mod download
-COPY *.go ./
 
 RUN go build -o /go-web-server
 
