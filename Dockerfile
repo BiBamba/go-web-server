@@ -1,7 +1,8 @@
-FROM golang:1.16-alpine
+FROM golang:1.19-alpine
 
 WORKDIR /app
-COPY go.mod ./
+COPY . ./
+
 
 RUN go mod download
 COPY *.go ./
