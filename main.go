@@ -6,17 +6,16 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var REQUESTS = prometheus.NewCounterVec(
+/*var REQUESTS = prometheus.NewCounterVec(
 	prometheus.Counter.Opts{
 		Name: "http_requests_total",
 		Help: "Number of get requests.",
 	},
 	[]string{"path"},
-)
+)*/
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
