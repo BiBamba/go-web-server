@@ -1,9 +1,21 @@
+// Including Prometheus instrumentation
 package main
 
 import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var REQUESTS = prometheus.NewCounterVec(
+	prometheus.Counter.Opts{
+		Name: "http_requests_total",
+		Help: "Number of get requests.",
+	},
+	[]string{"path"},
 )
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,9 +44,14 @@ func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	fileServer := http.FileServer(http.Dir("./static"))
+	promHandler := promhttp.Handler()
+
 	http.Handle("/", fileServer)
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/welcome", welcomeHandler)
+
+	// Prometheus endpoint
+	http.Handle("/prometheus", promHandler)
 
 	fmt.Printf("Starting server on port 8080\n")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
