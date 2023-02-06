@@ -1,2 +1,4 @@
 Dockerfile
 README.md
+k8sdeployment.yml
+Jenkinsfile
