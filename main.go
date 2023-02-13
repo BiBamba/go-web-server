@@ -6,18 +6,19 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-/*var REQUESTS = prometheus.NewCounterVec(
-	prometheus.Counter.Opts{
-		Name: "http_requests_total",
-		Help: "Number of get requests.",
+var REQUESTS = prometheus.NewCounter(
+	prometheus.CounterOpts{
+		Name: "http_requests_count",
+		Help: "Number of request handled by the server.",
 	},
-	[]string{"path"},
-)*/
+)
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
+	REQUESTS.Inc()
 	if err := r.ParseForm(); err != nil {
 		fmt.Fprintf(w, "ParseForm() err:%v", err)
 		return
@@ -30,6 +31,7 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+	REQUESTS.Inc()
 	if r.URL.Path != "/welcome" {
 		http.Error(w, "404 not found", http.StatusNotFound)
 		return
@@ -42,10 +44,13 @@ func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	prometheus.MustRegister(REQUESTS)
+
 	fileServer := http.FileServer(http.Dir("./static"))
 	promHandler := promhttp.Handler()
 
 	http.Handle("/", fileServer)
+	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/form", formHandler)
 	http.HandleFunc("/welcome", welcomeHandler)
 
